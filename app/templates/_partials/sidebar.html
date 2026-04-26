@@ -1,0 +1,31 @@
+<aside class="side">
+  <div class="brand">FIN<span class="slash">//</span>26<br><span class="v">v0.1.0</span></div>
+  <div class="brand-sub">finance-term · sessão local</div>
+
+  <div class="session">
+    <div class="kv"><span class="k">DB</span><span class="v pu">fin_db:5433</span></div>
+    <div class="kv"><span class="k">status</span><span class="v ok">● online</span></div>
+  </div>
+
+  <nav class="nav">
+    <div class="group">— navegação</div>
+    <a href="/" class="{% if active_nav == 'dashboard' %}active{% endif %}"><span class="dot"></span><span>Dashboard</span><span class="n">01</span></a>
+    <a href="/lancamentos" class="{% if active_nav == 'transactions' %}active{% endif %}"><span class="dot"></span><span>Lançamentos</span><span class="n">02</span></a>
+    <a href="/parcelados" class="{% if active_nav == 'installments' %}active{% endif %}"><span class="dot"></span><span>Parcelados</span><span class="n">03</span></a>
+    <a href="/fixos" class="{% if active_nav == 'fixed' %}active{% endif %}"><span class="dot"></span><span>Fixos</span><span class="n">04</span></a>
+    <a href="/relatorios" class="{% if active_nav == 'reports' %}active{% endif %}"><span class="dot"></span><span>Relatórios</span><span class="n">05</span></a>
+    <a href="/projecao" class="{% if active_nav == 'projection' %}active{% endif %}"><span class="dot"></span><span>Projeção</span><span class="n">06</span></a>
+    <a href="/metas" class="{% if active_nav == 'goals' %}active{% endif %}"><span class="dot"></span><span>Metas</span><span class="n">07</span></a>
+
+    <div class="group">— config</div>
+    <a href="/config/categorias" class="{% if active_nav == 'categories' %}active{% endif %}"><span class="dot"></span><span>Categorias</span><span class="n">08</span></a>
+    <a href="/config/fontes" class="{% if active_nav == 'sources' %}active{% endif %}"><span class="dot"></span><span>Fontes</span><span class="n">09</span></a>
+    <a href="/config/sistema" class="{% if active_nav == 'system' %}active{% endif %}"><span class="dot"></span><span>Sistema</span><span class="n">10</span></a>
+  </nav>
+
+  <div class="side-foot">
+    <div class="ln"><span>exerc</span><strong>2026</strong></div>
+    <div class="ln"><span>moeda</span><strong>BRL</strong></div>
+    <div class="ln"><span>sync</span><span class="ok">● live</span></div>
+  </div>
+</aside>
