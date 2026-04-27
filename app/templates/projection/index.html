@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>Projeção<span class="blink">▊</span></h1>
+    <div class="subtitle">próximos {{ months }} meses · ledger de {{ "%02d" | format(target_month) }}/{{ target_year }}</div>
+  </div>
+  <div class="actions">
+    <form method="get" action="/projecao" style="display:flex; gap:6px;">
+      <select name="months" onchange="this.form.submit()" style="background: var(--bg); color: var(--text); border: 1px solid var(--border-2); padding: 6px 10px;">
+        <option value="3"  {% if months == 3 %}selected{% endif %}>3 meses</option>
+        <option value="6"  {% if months == 6 %}selected{% endif %}>6 meses</option>
+        <option value="12" {% if months == 12 %}selected{% endif %}>12 meses</option>
+      </select>
+    </form>
+  </div>
+</div>
+
+<div class="content">
+  <div class="pnl">
+    <div class="pnl-h"><span>evolução previsto</span><span class="tag">fixos + parcelas</span></div>
+    <div class="pnl-b" style="padding: 16px;">
+      <canvas id="chart-proj" height="80"></canvas>
+    </div>
+  </div>
+
+  <div class="pnl">
+    <div class="pnl-h">
+      <span>ledger · {{ "%02d" | format(target_month) }}/{{ target_year }}</span>
+      <span class="tag">total R$ {{ "%.2f" | format(ledger_total) | replace(".", ",") }}</span>
+    </div>
+    <div class="pnl-b">
+      <table class="tx-table" style="margin:0; border: none;">
+        <thead>
+          <tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Fonte</th><th>Valor</th></tr>
+        </thead>
+        <tbody>
+          {% for r in ledger %}
+            <tr>
+              <td data-label="Data">{{ r.date.strftime("%d/%m") }}</td>
+              <td data-label="Descrição">{{ r.description }}</td>
+              <td data-label="Tipo">
+                {% if r.kind == "fixed" %}<span class="pill mode-pix">fixo</span>
+                {% else %}<span class="pill mode-credit">parcela</span>{% endif %}
+              </td>
+              <td data-label="Fonte">{{ r.source }}</td>
+              <td data-label="Valor" class="num">R$ {{ "%.2f" | format(r.amount) | replace(".", ",") }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="5" class="empty">Sem obrigações previstas neste mês.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6"></script>
+<script>
+const proj = {{ chart_json | safe }};
+Chart.defaults.color = "#8B8F99";
+Chart.defaults.font.family = "JetBrains Mono, monospace";
+
+new Chart(document.getElementById("chart-proj"), {
+  type: "bar",
+  data: {
+    labels: proj.labels,
+    datasets: [
+      { label: "Fixos", data: proj.fixed, backgroundColor: "#4AC776" },
+      { label: "Parcelas", data: proj.installments, backgroundColor: "#C084FC" },
+    ],
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { color: "#D8D4C8" } } },
+    scales: {
+      x: { stacked: true, grid: { color: "rgba(255,255,255,0.05)" } },
+      y: { stacked: true, grid: { color: "rgba(255,255,255,0.05)" } },
+    },
+  },
+});
+</script>
+{% endblock %}
