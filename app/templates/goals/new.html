@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>Nova meta<span class="blink">▊</span></h1>
+    <div class="subtitle">defina um valor a poupar e um prazo opcional</div>
+  </div>
+  <div class="actions">
+    <a class="btn secondary" href="/metas">[ ← ] voltar</a>
+  </div>
+</div>
+
+<div class="content">
+  <form method="post" action="/metas/nova" class="form-card">
+    <div class="form-row">
+      <label style="flex:1;">Título
+        <input type="text" name="title" required maxlength="120" autofocus>
+      </label>
+    </div>
+    <div class="form-row">
+      <label>Valor alvo (R$)
+        <input type="text" name="target_amount" placeholder="10000,00" required>
+      </label>
+      <label>Prazo (opcional)
+        <input type="date" name="target_date">
+      </label>
+    </div>
+    <div class="form-row">
+      <label style="flex:1;">Nota
+        <textarea name="note" rows="2" maxlength="400"></textarea>
+      </label>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn">[ criar meta ]</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

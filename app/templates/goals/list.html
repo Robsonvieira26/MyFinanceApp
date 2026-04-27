@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>Metas<span class="blink">▊</span></h1>
+    <div class="subtitle">{{ goals | length }} meta(s) · inclui arquivadas</div>
+  </div>
+  <div class="actions">
+    <a class="btn" href="/metas/nova">[ + ] nova meta</a>
+  </div>
+</div>
+
+<div class="content">
+  <div class="goals-grid">
+    {% for g in goals %}
+      {% set pct = progress_pct(g) %}
+      <div class="goal-card {% if not g.active %}archived{% endif %}">
+        <div class="goal-head">
+          <h3>{{ g.title }}</h3>
+          {% if g.target_date %}<span class="goal-date">até {{ g.target_date.strftime("%d/%m/%Y") }}</span>{% endif %}
+        </div>
+        <div class="goal-num">R$ {{ "%.2f" | format(g.saved_amount) | replace(".", ",") }}
+          <span class="goal-of">/ R$ {{ "%.2f" | format(g.target_amount) | replace(".", ",") }}</span>
+        </div>
+        <div class="goal-bar"><div style="width: {{ pct | round(1) if pct < 100 else 100 }}%"></div></div>
+        <div class="goal-pct">{{ pct | round(1) }}%</div>
+
+        {% if g.active %}
+        <form method="post" action="/metas/{{ g.id }}/progresso" style="display:flex; gap:6px; margin-top:10px;">
+          <input type="text" name="amount" placeholder="+ valor poupado" style="flex:1; background: var(--bg); color: var(--text); border: 1px solid var(--border-2); padding: 6px 8px;">
+          <button type="submit" class="btn secondary" style="padding: 6px 12px; font-size: 9px;">adicionar</button>
+        </form>
+        <form method="post" action="/metas/{{ g.id }}/archive" onsubmit="return confirm('Arquivar meta?')" style="margin-top:4px;">
+          <button type="submit" class="btn secondary" style="padding: 4px 8px; font-size: 9px;">arquivar</button>
+        </form>
+        {% else %}
+          <div style="margin-top: 10px;"><span class="pill">arquivada</span></div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="empty" style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--dim);">Nenhuma meta cadastrada.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
