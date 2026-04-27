@@ -49,7 +49,7 @@
         <div class="alert-pill alert-pill-ok">
           <span class="ap-n">0</span>
           <span class="ap-sep">·</span>
-          <span class="ap-l">NO ALERT</span>
+          <span class="ap-l">SEM ALERTA</span>
         </div>
       {% endif %}
     </div>
@@ -100,7 +100,7 @@
     </div>
 
     <div class="pnl">
-      <div class="pnl-h"><span>alertas</span><span class="tag live-tag">● live</span></div>
+      <div class="pnl-h"><span>alertas</span><span class="tag live-tag">● ativo</span></div>
       <div class="pnl-b">
         {% for a in alerts %}
           <div class="line line-2 {% if a.level == 'err' %}err{% else %}warn{% endif %}">

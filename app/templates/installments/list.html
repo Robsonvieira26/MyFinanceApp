@@ -14,7 +14,7 @@
 <div class="content">
   <table class="tx-table">
     <thead>
-      <tr><th>Descrição</th><th>Compra em</th><th>Parcelas</th><th>Valor/parc</th><th>Total</th><th>Status</th><th></th></tr>
+      <tr><th>Descrição</th><th>Compra em</th><th>Parcelas</th><th>Valor/parc</th><th>Total</th><th>Estado</th><th></th></tr>
     </thead>
     <tbody>
       {% for p in plans %}
@@ -24,7 +24,7 @@
           <td data-label="Parcelas">{{ p.installments_count }}x</td>
           <td data-label="Valor/parc" class="num">R$ {{ "%.2f" | format(p.installment_amount) | replace(".", ",") }}</td>
           <td data-label="Total" class="num">R$ {{ "%.2f" | format(p.total_amount) | replace(".", ",") }}</td>
-          <td data-label="Status">
+          <td data-label="Estado">
             {% if p.active %}<span class="pill mode-credit">ativo</span>
             {% else %}<span class="pill">arquivado</span>{% endif %}
           </td>

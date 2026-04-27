@@ -58,7 +58,7 @@
           <td data-label="Recorrência">{{ r.recurrence }}{% if r.day_of_month %} · dia {{ r.day_of_month }}{% endif %}</td>
           <td data-label="Esperado" class="num">R$ {{ "%.2f" | format(r.expected_amount) | replace(".", ",") }}</td>
           <td data-label="Fonte">{{ r.source.name }}</td>
-          <td data-label="Status">{% if r.archived %}<span class="pill">arquivada</span>{% else %}<span class="pill mode-pix">ativa</span>{% endif %}</td>
+          <td data-label="Estado">{% if r.archived %}<span class="pill">arquivada</span>{% else %}<span class="pill mode-pix">ativa</span>{% endif %}</td>
           <td data-label="Ações">
             {% if not r.archived %}
             <form method="post" action="/fixos/{{ r.id }}/archive" onsubmit="return confirm('Arquivar esta regra?')" style="display:inline;">
