@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>Parcelados<span class="blink">▊</span></h1>
+    <div class="subtitle">{{ plans | length }} plano(s) cadastrado(s)</div>
+  </div>
+  <div class="actions">
+    <a class="btn" href="/parcelados/novo">[ + ] novo parcelamento</a>
+  </div>
+</div>
+
+<div class="content">
+  <table class="tx-table">
+    <thead>
+      <tr><th>Descrição</th><th>Compra em</th><th>Parcelas</th><th>Valor/parc</th><th>Total</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for p in plans %}
+        <tr>
+          <td><a href="/parcelados/{{ p.id }}" style="color: var(--text);">{{ p.description }}</a></td>
+          <td>{{ p.first_purchase_date.strftime("%d/%m/%Y") }}</td>
+          <td>{{ p.installments_count }}x</td>
+          <td class="num">R$ {{ "%.2f" | format(p.installment_amount) | replace(".", ",") }}</td>
+          <td class="num">R$ {{ "%.2f" | format(p.total_amount) | replace(".", ",") }}</td>
+          <td>
+            {% if p.active %}<span class="pill mode-credit">ativo</span>
+            {% else %}<span class="pill">arquivado</span>{% endif %}
+          </td>
+          <td>
+            <form method="post" action="/parcelados/{{ p.id }}/delete" onsubmit="return confirm('Apagar plano e parcelas projetadas?')" style="display:inline;">
+              <button type="submit" class="btn danger" style="padding:4px 8px; font-size:9px;">×</button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7" class="empty">Nenhum parcelamento cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

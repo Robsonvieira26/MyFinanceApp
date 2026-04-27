@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>{{ plan.description }}<span class="blink">▊</span></h1>
+    <div class="subtitle">
+      {{ plan.installments_count }}x de R$ {{ "%.2f" | format(plan.installment_amount) | replace(".", ",") }}
+      · total R$ {{ "%.2f" | format(plan.total_amount) | replace(".", ",") }}
+      · compra em {{ plan.first_purchase_date.strftime("%d/%m/%Y") }}
+    </div>
+  </div>
+  <div class="actions">
+    <a class="btn secondary" href="/parcelados">[ ← ] voltar</a>
+  </div>
+</div>
+
+<div class="content">
+  <table class="tx-table">
+    <thead>
+      <tr><th>#</th><th>Vencimento</th><th>Valor</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for tx in installments %}
+        <tr>
+          <td>{{ loop.index }}/{{ plan.installments_count }}</td>
+          <td>{{ tx.date.strftime("%d/%m/%Y") }}</td>
+          <td class="num">R$ {{ "%.2f" | format(tx.amount) | replace(".", ",") }}</td>
+          <td>
+            {% if tx.status == "confirmed" %}
+              <span class="pill mode-pix">confirmada</span>
+            {% else %}
+              <span class="pill mode-credit">projetada</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if tx.status == "projected" %}
+              <form method="post" action="/parcelados/tx/{{ tx.id }}/confirm" style="display:inline;">
+                <button type="submit" class="btn secondary" style="padding:4px 10px; font-size:9px;">confirmar</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>Novo parcelamento<span class="blink">▊</span></h1>
+    <div class="subtitle">crédito apenas · primeira parcela respeita fechamento</div>
+  </div>
+  <div class="actions">
+    <a class="btn secondary" href="/parcelados">[ ← ] voltar</a>
+  </div>
+</div>
+
+<div class="content">
+  <form method="post" action="/parcelados/novo" class="form-card" id="inst-form">
+    <div class="form-row">
+      <label style="flex:1;">Descrição
+        <input type="text" name="description" required maxlength="200" autofocus>
+      </label>
+      <label>Data da compra
+        <input type="date" name="first_purchase_date" value="{{ today }}" required>
+      </label>
+    </div>
+
+    <div class="form-row">
+      <label>Fonte (crédito)
+        <select name="source_id" required>
+          {% for s in sources %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Categoria
+        <select name="category_id" required>
+          {% for c in categories %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Nº parcelas
+        <input type="number" name="installments_count" value="12" min="2" max="120" required>
+      </label>
+    </div>
+
+    <div class="form-row" style="gap: 20px; align-items: center;">
+      <label style="flex-direction: row; align-items: center; gap: 8px;">
+        <input type="radio" name="input_mode" value="total" checked onchange="toggleMode(this.value)"> informar total
+      </label>
+      <label style="flex-direction: row; align-items: center; gap: 8px;">
+        <input type="radio" name="input_mode" value="per_installment" onchange="toggleMode(this.value)"> informar valor da parcela
+      </label>
+    </div>
+
+    <div class="form-row" id="row-total">
+      <label style="flex:1;">Valor total (R$)
+        <input type="text" name="total_amount" placeholder="0,00">
+      </label>
+    </div>
+
+    <div class="form-row" id="row-per" style="display:none;">
+      <label style="flex:1;">Valor de cada parcela (R$)
+        <input type="text" name="installment_amount" placeholder="0,00">
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">[ criar parcelamento ]</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  function toggleMode(mode) {
+    document.getElementById("row-total").style.display = mode === "total" ? "" : "none";
+    document.getElementById("row-per").style.display = mode === "per_installment" ? "" : "none";
+  }
+</script>
+{% endblock %}
