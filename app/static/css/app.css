@@ -532,22 +532,43 @@ body::after {
 .line {
   display: grid;
   grid-template-columns: 1fr auto auto;
-  gap: 12px; align-items: baseline;
-  padding: 11px 0;
+  gap: 10px; align-items: baseline;
+  padding: 10px 0;
   font-variant-numeric: tabular-nums;
   border-bottom: 1px dashed rgba(255,255,255,0.055);
-  font-size: 13.5px;
+  font-size: 13px;
+}
+.line.line-4 {
+  grid-template-columns: 1fr auto auto auto;
 }
 .line:last-child { border-bottom: none; }
-.line .nm  { color: var(--text); }
-.line .pct { color: var(--muted); font-size: 10px; min-width: 44px; text-align: right; }
+.line .nm  { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.line .pct { color: var(--dim); font-size: 9.5px; min-width: 34px; text-align: right; }
 .line .vl  {
   color: var(--primary); font-weight: 500;
-  text-align: right; min-width: 100px; font-size: 13.5px;
+  text-align: right; min-width: 90px; font-size: 13px;
 }
+.line .tp {
+  font-size: 9.5px; color: var(--muted);
+  letter-spacing: 0.03em; white-space: nowrap;
+  min-width: 80px; text-align: right;
+}
+.line .tp.kind-hybrid { color: var(--primary); }
+.line .tp.kind-debit  { color: var(--ok); }
+
 .line.warn .nm::before { content: "⚠ "; color: var(--warn); }
+.line.err  .nm::before { content: "✗ "; color: var(--err); }
 .line.ok   .nm::before { content: "✓ "; color: var(--ok); }
 .line.info .nm::before { content: "● "; color: var(--info); }
+
+.line .warn-vl { color: var(--warn); font-size: 10px; }
+.line .ok-vl   { color: var(--ok);   font-size: 14px; }
+
+.live-tag {
+  color: var(--ok) !important;
+  animation: live-blink 2s steps(2) infinite;
+}
+@keyframes live-blink { 0%, 70% { opacity: 1; } 71%, 100% { opacity: 0.4; } }
 
 /* ================================================
    GOALS

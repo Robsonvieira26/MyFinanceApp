@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% macro kind_label(kind) %}{{ 'Crédito' if kind == 'hybrid' else 'Débito' }}{% endmacro %}
+
 {% block content %}
 <div class="header">
   <div>
@@ -13,11 +15,13 @@
 </div>
 
 <div class="content">
+
+  {# ── HERO ── #}
   <div class="hero">
     <div>
       <div class="k">▸ mês corrente · gasto acumulado</div>
       <div class="hero-num">R$ {{ "%.2f" | format(total_spent) | replace(".", ",") }}</div>
-      <div class="prog"><div style="width: {{ budget_ratio | round(1) }}%"></div></div>
+      <div class="prog"><div style="width: {{ [budget_ratio, 100] | min | round(1) }}%"></div></div>
       <div class="prog-lbl">
         <span>{{ budget_ratio | round(1) }}% do alvo</span>
         <span>ALVO R$ {{ "%.2f" | format(total_budget) | replace(".", ",") }}</span>
@@ -44,14 +48,27 @@
     </div>
   </div>
 
+  {# ── PANELS GRID ── #}
   <div class="grid-3">
+
+    {# Categorias #}
     <div class="pnl">
-      <div class="pnl-h"><span>categorias</span><span class="tag">top 5</span></div>
+      <div class="pnl-h">
+        <span>categorias</span>
+        <span class="tag">top {{ top_categories | length }}</span>
+      </div>
       <div class="pnl-b">
         {% for cat in top_categories %}
-          <div class="line">
-            <span class="nm">{{ cat.name }}</span>
+          <div class="line line-4">
+            <span class="nm">
+              {% if cat.name | length > 14 %}{{ cat.name[:13] }}…{% else %}{{ cat.name }}{% endif %}
+            </span>
             <span class="pct">{{ (100 * cat.total / total_spent) | round(0) | int if total_spent else 0 }}%</span>
+            <span class="tp">
+              {%- if cat.source_name -%}
+                {{ cat.source_name[:10] }} / {{ kind_label(cat.source_kind) }}
+              {%- else -%}—{%- endif -%}
+            </span>
             <span class="vl">R$ {{ "%.2f" | format(cat.total) | replace(".", ",") }}</span>
           </div>
         {% else %}
@@ -60,13 +77,20 @@
       </div>
     </div>
 
+    {# Fontes #}
     <div class="pnl">
-      <div class="pnl-h"><span>fontes</span><span class="tag">ativas</span></div>
+      <div class="pnl-h">
+        <span>fontes</span>
+        <span class="tag">ativas</span>
+      </div>
       <div class="pnl-b">
         {% for s in sources %}
-          <div class="line">
-            <span class="nm">{{ s.name }}</span>
+          <div class="line line-4">
+            <span class="nm">
+              {% if s.name | length > 12 %}{{ s.name[:11] }}…{% else %}{{ s.name }}{% endif %}
+            </span>
             <span class="pct">{{ (100 * s.total / total_spent) | round(0) | int if total_spent else 0 }}%</span>
+            <span class="tp kind-{{ s.kind }}">{{ kind_label(s.kind) }}</span>
             <span class="vl">R$ {{ "%.2f" | format(s.total) | replace(".", ",") }}</span>
           </div>
         {% else %}
@@ -75,20 +99,29 @@
       </div>
     </div>
 
+    {# Sinais #}
     <div class="pnl">
-      <div class="pnl-h"><span>sinais</span><span class="tag">live</span></div>
+      <div class="pnl-h">
+        <span>sinais</span>
+        <span class="tag live-tag">● live</span>
+      </div>
       <div class="pnl-b">
         {% for a in alerts %}
-          <div class="line {% if a.level == 'err' %}warn{% else %}warn{% endif %}">
+          <div class="line {% if a.level == 'err' %}err{% else %}warn{% endif %}">
             <span class="nm">{{ a.message }}</span>
             <span class="pct">{{ a.pct | round(0) | int }}%</span>
-            <span class="vl">{{ a.kind }}</span>
+            <span class="vl warn-vl">{{ a.kind }}</span>
           </div>
         {% else %}
-          <div class="line ok"><span class="nm">tudo dentro do alvo</span><span></span><span></span></div>
+          <div class="line ok">
+            <span class="nm">tudo dentro do alvo</span>
+            <span></span>
+            <span class="vl ok-vl">✓</span>
+          </div>
         {% endfor %}
       </div>
     </div>
+
   </div>
 </div>
 {% endblock %}

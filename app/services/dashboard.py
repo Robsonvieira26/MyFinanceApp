@@ -13,12 +13,15 @@ class CategoryRow(TypedDict):
     category_id: int
     name: str
     total: Decimal
+    source_name: str | None
+    source_kind: str | None
 
 
 class SourceRow(TypedDict):
     source_id: int
     slug: str
     name: str
+    kind: str
     total: Decimal
 
 
@@ -78,28 +81,49 @@ def top_categories(
         .order_by(func.sum(Transaction.amount).desc())
         .limit(limit)
     ).all()
-    return [
-        {"category_id": row.id, "name": row.name,
-         "total": Decimal(row.total).quantize(Decimal("0.01"))}
-        for row in rows
-    ]
+
+    result: list[CategoryRow] = []
+    for row in rows:
+        top_src = db.execute(
+            select(Source.name, Source.kind)
+            .join(Transaction, Transaction.source_id == Source.id)
+            .where(
+                Transaction.category_id == row.id,
+                Transaction.date >= start,
+                Transaction.date <= end,
+                Transaction.status == "confirmed",
+                Transaction.type == "expense",
+            )
+            .group_by(Source.id, Source.name, Source.kind)
+            .order_by(func.sum(Transaction.amount).desc())
+            .limit(1)
+        ).first()
+        result.append({
+            "category_id": row.id,
+            "name": row.name,
+            "total": Decimal(row.total).quantize(Decimal("0.01")),
+            "source_name": top_src.name if top_src else None,
+            "source_kind": top_src.kind if top_src else None,
+        })
+    return result
 
 
 def by_source(db: Session, *, year: int, month: int) -> list[SourceRow]:
     start, end = _month_bounds(year, month)
     rows = db.execute(
         select(
-            Source.id, Source.slug, Source.name,
+            Source.id, Source.slug, Source.name, Source.kind,
             func.coalesce(func.sum(Transaction.amount), 0).label("total"),
         )
         .join(Transaction, Transaction.source_id == Source.id)
         .where(Transaction.date >= start, Transaction.date <= end)
         .where(Transaction.status == "confirmed", Transaction.type == "expense")
-        .group_by(Source.id, Source.slug, Source.name)
+        .group_by(Source.id, Source.slug, Source.name, Source.kind)
         .order_by(func.sum(Transaction.amount).desc())
     ).all()
     return [
         {"source_id": row.id, "slug": row.slug, "name": row.name,
+         "kind": row.kind,
          "total": Decimal(row.total).quantize(Decimal("0.01"))}
         for row in rows
     ]
