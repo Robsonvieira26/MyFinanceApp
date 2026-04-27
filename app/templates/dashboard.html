@@ -4,10 +4,87 @@
 <div class="header">
   <div>
     <h1>Dashboard<span class="blink">▊</span></h1>
-    <div class="subtitle">em construção · v0.1</div>
+    <div class="subtitle">{{ "%02d" | format(month) }}/{{ year }} · {{ overview.count }} lançamento(s) · atualizado em tempo real</div>
+  </div>
+  <div class="actions">
+    <a class="btn secondary" href="/lancamentos">[ L ] lançamentos</a>
+    <a class="btn" href="/lancamentos/novo">[ + ] adicionar</a>
   </div>
 </div>
+
 <div class="content">
-  <p style="color: var(--muted);">Dashboard será implementado no Milestone 4.</p>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <div class="k">▸ mês corrente · gasto acumulado</div>
+      <div class="hero-num">R$ {{ "%.2f" | format(total_spent) | replace(".", ",") }}</div>
+      <div class="prog"><div style="width: {{ (100 * total_spent / 5000) | round(1) if total_spent else 0 }}%"></div></div>
+      <div class="prog-lbl">
+        <span>{{ (100 * total_spent / 5000) | round(1) if total_spent else 0 }}% do alvo (stub)</span>
+        <span>ALVO R$ 5.000,00</span>
+        <span>dia {{ today.day }}/{{ "%02d" | format(month) }}</span>
+      </div>
+    </div>
+    <div class="metrics">
+      <div class="m ok">
+        <div class="lbl">Receita</div>
+        <div class="val ok">R$ {{ "%.2f" | format(income) | replace(".", ",") }}</div>
+      </div>
+      <div class="m pu">
+        <div class="lbl">Saldo previsto</div>
+        <div class="val pu">R$ {{ "%.2f" | format(projected_balance) | replace(".", ",") }}</div>
+      </div>
+      <div class="m">
+        <div class="lbl">Queima / dia</div>
+        <div class="val">R$ {{ "%.2f" | format(burn_per_day) | replace(".", ",") }}</div>
+      </div>
+      <div class="m warn">
+        <div class="lbl">Alertas</div>
+        <div class="val warn">{{ 0 }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRID 3 -->
+  <div class="grid-3">
+    <div class="pnl">
+      <div class="pnl-h"><span>categorias</span><span class="tag">top 5</span></div>
+      <div class="pnl-b">
+        {% for cat in top_categories %}
+          <div class="line">
+            <span class="nm">{{ cat.name }}</span>
+            <span class="pct">{{ (100 * cat.total / total_spent) | round(0) | int if total_spent else 0 }}%</span>
+            <span class="vl">R$ {{ "%.2f" | format(cat.total) | replace(".", ",") }}</span>
+          </div>
+        {% else %}
+          <div class="line"><span class="nm dim">sem gastos este mês</span><span></span><span></span></div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="pnl">
+      <div class="pnl-h"><span>fontes</span><span class="tag">ativas</span></div>
+      <div class="pnl-b">
+        {% for s in sources %}
+          <div class="line">
+            <span class="nm">{{ s.name }}</span>
+            <span class="pct">{{ (100 * s.total / total_spent) | round(0) | int if total_spent else 0 }}%</span>
+            <span class="vl">R$ {{ "%.2f" | format(s.total) | replace(".", ",") }}</span>
+          </div>
+        {% else %}
+          <div class="line"><span class="nm dim">sem gastos este mês</span><span></span><span></span></div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="pnl">
+      <div class="pnl-h"><span>sinais</span><span class="tag">live</span></div>
+      <div class="pnl-b">
+        <div class="line info"><span class="nm">Alertas</span><span class="pct"></span><span class="vl">implementado em M7</span></div>
+        <div class="line info"><span class="nm">Metas</span><span class="pct"></span><span class="vl">implementado em M8</span></div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
