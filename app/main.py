@@ -11,6 +11,7 @@ from app.routers import dashboard as dashboard_router
 from app.routers import fixed as fixed_router
 from app.routers import goals as goals_router
 from app.routers import installments as installments_router
+from app.routers import reports as reports_router
 from app.routers import transactions as transactions_router
 from app.services.seed import seed_all
 
@@ -33,6 +34,7 @@ app.include_router(goals_router.router)
 app.include_router(transactions_router.router)
 app.include_router(installments_router.router)
 app.include_router(fixed_router.router)
+app.include_router(reports_router.router)
 
 
 @app.get("/health", response_class=HTMLResponse)
