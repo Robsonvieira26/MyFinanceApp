@@ -1,10 +1,21 @@
 <div class="topbar">
-  <div style="display:flex; align-items:center; gap:12px;">
+  <div class="tb-left">
     <button class="hamburger" aria-label="menu">≡</button>
-    <div class="crumbs">~/ <span class="sep">·</span> <strong>{{ page_title or "—" }}</strong></div>
+    <div class="crumbs">
+      <span class="cr-root">~/</span>
+      <span class="sep">·</span>
+      <strong>{{ (page_title or "—") | upper }}</strong>
+      <span class="sep">·</span>
+      <span class="cr-tag">DAILY HORIZON</span>
+    </div>
   </div>
-  <div class="status">
-    <span><span class="pulse"></span>online</span>
-    <span>db <span class="ok">ok</span></span>
+  <div class="tb-mid">
+    <span class="kbd"><b>F1</b> filter</span>
+    <span class="kbd"><b>F2</b> search</span>
+    <span class="kbd"><b>F3</b> add</span>
+  </div>
+  <div class="tb-right">
+    <span class="status-item"><span class="pulse"></span>online</span>
+    <span class="status-item">db <span class="ok">ok</span></span>
   </div>
 </div>

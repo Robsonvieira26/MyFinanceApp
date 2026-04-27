@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% macro kind_label(kind) %}{{ 'Crédito' if kind == 'hybrid' else 'Débito' }}{% endmacro %}
+{% macro kind_label(kind) %}{{ 'crédito' if kind == 'hybrid' else 'débito' }}{% endmacro %}
 
 {% block content %}
 <div class="header">
@@ -16,44 +16,55 @@
 
 <div class="content">
 
-  {# ── HERO STRIP (4 horizontal cards) ── #}
+  {# ── HERO STRIP ── #}
   <div class="hero-strip">
     <div class="hcard hcard-main">
       <div class="hk">▸ mês corrente · gasto acumulado</div>
-      <div class="hero-num">R$ {{ "%.2f" | format(total_spent) | replace(".", ",") }}</div>
+      <div class="hero-num">R$ {{ "%.2f" | format(total_spent) | replace(".", ",") }}<span class="hero-cur">▊</span></div>
     </div>
+
     <div class="hcard">
       <div class="hk">Receita</div>
       <div class="hval ok">R$ {{ "%.2f" | format(income) | replace(".", ",") }}</div>
+      <div class="hsub">entrada confirmada</div>
     </div>
+
     <div class="hcard">
       <div class="hk">Saldo previsto</div>
       <div class="hval pu">R$ {{ "%.2f" | format(projected_balance) | replace(".", ",") }}</div>
+      <div class="hsub">receita − despesa</div>
     </div>
+
     <div class="hcard">
-      <div class="hk">Alertas</div>
+      <div class="hk">Queima / dia</div>
+      <div class="hval-sm">R$ {{ "%.2f" | format(burn_per_day) | replace(".", ",") }}</div>
       {% if alerts %}
         {% set top_alert = alerts[0] %}
         <div class="alert-pill">
           <span class="ap-n">{{ alerts | length }}</span>
+          <span class="ap-sep">−</span>
           <span class="ap-l">{{ top_alert.kind | upper }}</span>
         </div>
       {% else %}
-        <div class="hval ok">0 ✓</div>
+        <div class="alert-pill alert-pill-ok">
+          <span class="ap-n">0</span>
+          <span class="ap-sep">·</span>
+          <span class="ap-l">NO ALERT</span>
+        </div>
       {% endif %}
     </div>
   </div>
 
-  {# ── PROGRESS BAR ── #}
+  {# ── PROGRESS BAR ROW ── #}
   <div class="hprog">
     <div class="hprog-bar">
       <div style="width: {{ [budget_ratio, 100] | min | round(1) }}%"></div>
     </div>
     <div class="hprog-lbl">
-      <span>{{ budget_ratio | round(1) }}% do alvo</span>
-      <span>ALVO R$ {{ "%.2f" | format(total_budget) | replace(".", ",") }}</span>
-      <span>queima R$ {{ "%.2f" | format(burn_per_day) | replace(".", ",") }}/dia</span>
-      <span>dia {{ today.day }}/{{ "%02d" | format(month) }}</span>
+      <span><b>{{ budget_ratio | round(1) }}%</b> do alvo</span>
+      <span>ALVO <b>R$ {{ "%.2f" | format(total_budget) | replace(".", ",") }}</b></span>
+      <span>RESTA <b>R$ {{ "%.2f" | format(total_budget - total_spent) | replace(".", ",") }}</b></span>
+      <span>dia <b>{{ today.day }}/{{ "%02d" | format(month) }}</b></span>
     </div>
   </div>
 
@@ -64,17 +75,12 @@
       <div class="pnl-h"><span>categorias</span><span class="tag">top {{ top_categories | length }}</span></div>
       <div class="pnl-b">
         {% for cat in top_categories %}
-          <div class="line line-3">
+          <div class="line line-2">
             <span class="nm">{{ cat.name }}</span>
-            <span class="tp">
-              {%- if cat.source_name -%}
-                {{ cat.source_name[:8] }} / {{ kind_label(cat.source_kind)[:4] }}
-              {%- else -%}—{%- endif -%}
-            </span>
             <span class="vl">R$ {{ "%.2f" | format(cat.total) | replace(".", ",") }}</span>
           </div>
         {% else %}
-          <div class="line"><span class="nm dim">sem gastos</span><span></span><span></span></div>
+          <div class="line"><span class="nm dim">sem gastos</span><span></span></div>
         {% endfor %}
       </div>
     </div>
@@ -83,13 +89,12 @@
       <div class="pnl-h"><span>fontes</span><span class="tag">ativas</span></div>
       <div class="pnl-b">
         {% for s in sources %}
-          <div class="line line-3">
-            <span class="nm">{{ s.name }}</span>
-            <span class="tp kind-{{ s.kind }}">{{ kind_label(s.kind) }}</span>
+          <div class="line line-2">
+            <span class="nm">{{ s.name }} <span class="nm-sub kind-{{ s.kind }}">/ {{ kind_label(s.kind) }}</span></span>
             <span class="vl">R$ {{ "%.2f" | format(s.total) | replace(".", ",") }}</span>
           </div>
         {% else %}
-          <div class="line"><span class="nm dim">sem gastos</span><span></span><span></span></div>
+          <div class="line"><span class="nm dim">sem gastos</span><span></span></div>
         {% endfor %}
       </div>
     </div>
@@ -98,12 +103,12 @@
       <div class="pnl-h"><span>alertas</span><span class="tag live-tag">● live</span></div>
       <div class="pnl-b">
         {% for a in alerts %}
-          <div class="line {% if a.level == 'err' %}err{% else %}warn{% endif %}">
+          <div class="line line-2 {% if a.level == 'err' %}err{% else %}warn{% endif %}">
             <span class="nm">{{ a.message }}</span>
             <span class="vl warn-vl">{{ a.pct | round(0) | int }}%</span>
           </div>
         {% else %}
-          <div class="line ok">
+          <div class="line line-2 ok">
             <span class="nm">tudo no alvo</span>
             <span class="vl ok-vl">✓</span>
           </div>
@@ -116,16 +121,16 @@
       <div class="pnl-b">
         {% for p in active_plans %}
           <div class="line line-2 plan-row">
-            <span class="nm pu">+ {{ p.description }}</span>
-            <span class="tp">{{ p.current }}/{{ p.total }}</span>
+            <span class="nm pu">+ {{ p.description }} <span class="nm-sub">{{ p.current }}/{{ p.total }}</span></span>
             <span class="vl">R$ {{ "%.2f" | format(p.amount) | replace(".", ",") }}</span>
           </div>
         {% else %}
-          <div class="line"><span class="nm dim">sem parcelas ativas</span><span></span><span></span></div>
+          <div class="line"><span class="nm dim">sem parcelas ativas</span><span></span></div>
         {% endfor %}
       </div>
     </div>
 
   </div>
 </div>
+
 {% endblock %}
