@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>Editar lançamento<span class="blink">▊</span></h1>
+    <div class="subtitle">id #{{ tx.id }} · origem {{ tx.origin }}</div>
+  </div>
+  <div class="actions">
+    <a class="btn secondary" href="/lancamentos">[ ← ] voltar</a>
+  </div>
+</div>
+
+<div class="content">
+  <form method="post" action="/lancamentos/{{ tx.id }}/editar" class="form-card">
+    <div class="form-row">
+      <label>Tipo
+        <select name="type">
+          <option value="expense" {% if tx.type == 'expense' %}selected{% endif %}>gasto</option>
+          <option value="income" {% if tx.type == 'income' %}selected{% endif %}>receita</option>
+        </select>
+      </label>
+      <label>Data
+        <input type="date" name="date" value="{{ tx.date.isoformat() }}" required>
+      </label>
+      <label>Valor (R$)
+        <input type="text" name="amount" value="{{ '%.2f' | format(tx.amount) }}" required>
+      </label>
+    </div>
+    <div class="form-row">
+      <label style="flex:1;">Descrição
+        <input type="text" name="description" value="{{ tx.description }}" maxlength="200" required>
+      </label>
+    </div>
+    <div class="form-row">
+      <label>Fonte
+        <select name="source_id" required>
+          {% for s in sources %}
+            <option value="{{ s.id }}" {% if s.id == tx.source_id %}selected{% endif %}>{{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Modo
+        <select name="payment_mode" required>
+          <option value="debit" {% if tx.payment_mode == 'debit' %}selected{% endif %}>débito</option>
+          <option value="credit" {% if tx.payment_mode == 'credit' %}selected{% endif %}>crédito</option>
+          <option value="pix" {% if tx.payment_mode == 'pix' %}selected{% endif %}>PIX</option>
+        </select>
+      </label>
+      <label>Categoria
+        <select name="category_id" required>
+          {% for c in categories %}
+            <option value="{{ c.id }}" {% if c.id == tx.category_id %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+    <div class="form-row">
+      <label style="flex:1;">Nota
+        <textarea name="note" rows="2" maxlength="500">{{ tx.note or '' }}</textarea>
+      </label>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn">[ salvar alterações ]</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

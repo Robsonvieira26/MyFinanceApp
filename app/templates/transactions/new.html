@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>Novo lançamento<span class="blink">▊</span></h1>
+    <div class="subtitle">registre um gasto ou recebimento avulso</div>
+  </div>
+  <div class="actions">
+    <a class="btn secondary" href="/lancamentos">[ ← ] voltar</a>
+  </div>
+</div>
+
+<div class="content">
+  <form method="post" action="/lancamentos/novo" class="form-card">
+    <div class="form-row">
+      <label>Tipo
+        <select name="type">
+          <option value="expense" selected>gasto</option>
+          <option value="income">receita</option>
+        </select>
+      </label>
+      <label>Data
+        <input type="date" name="date" value="{{ today }}" required>
+      </label>
+      <label>Valor (R$)
+        <input type="text" name="amount" placeholder="0,00" required pattern="[0-9]+([,.][0-9]{1,2})?">
+      </label>
+    </div>
+    <div class="form-row">
+      <label style="flex:1;">Descrição
+        <input type="text" name="description" maxlength="200" required autofocus>
+      </label>
+    </div>
+    <div class="form-row">
+      <label>Fonte
+        <select name="source_id" required>
+          {% for s in sources %}
+            <option value="{{ s.id }}">{{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Modo
+        <select name="payment_mode" required>
+          <option value="debit">débito</option>
+          <option value="credit">crédito</option>
+          <option value="pix">PIX</option>
+        </select>
+      </label>
+      <label>Categoria
+        <select name="category_id" required>
+          {% for c in categories %}
+            <option value="{{ c.id }}">{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+    <div class="form-row">
+      <label style="flex:1;">Nota (opcional)
+        <textarea name="note" rows="2" maxlength="500"></textarea>
+      </label>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn">[ salvar ]</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

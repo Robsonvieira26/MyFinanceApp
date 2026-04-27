@@ -1,0 +1,21 @@
+<tr>
+  <td>{{ tx.date.strftime("%d/%m") }}</td>
+  <td><a href="/lancamentos/{{ tx.id }}/editar" style="color:var(--text);">{{ tx.description }}</a></td>
+  <td>{{ tx.category.name }}</td>
+  <td>{{ tx.source.name }}</td>
+  <td><span class="pill mode-{{ tx.payment_mode }}">{{ tx.payment_mode }}</span></td>
+  <td class="due">
+    {% set due = tx.compute_due_date(tx.source) %}
+    {% if due != tx.date %}
+      <span class="due-shift">→ {{ due.strftime("%d/%m") }}</span>
+    {% else %}
+      <span class="dim">—</span>
+    {% endif %}
+  </td>
+  <td class="num">R$ {{ "%.2f" | format(tx.amount) | replace(".", ",") }}</td>
+  <td>
+    <form method="post" action="/lancamentos/{{ tx.id }}/delete" onsubmit="return confirm('Apagar este lançamento?')" style="display:inline;">
+      <button type="submit" class="btn danger" style="padding:4px 8px; font-size:9px;">×</button>
+    </form>
+  </td>
+</tr>

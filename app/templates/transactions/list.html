@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>Lançamentos<span class="blink">▊</span></h1>
+    <div class="subtitle">{{ "%02d" | format(filters.month) }}/{{ filters.year }} · {{ items | length }} registro(s)</div>
+  </div>
+  <div class="actions">
+    <a class="btn" href="/lancamentos/novo">[ + ] adicionar</a>
+  </div>
+</div>
+
+<div class="content">
+  <form method="get" action="/lancamentos" class="filter-form">
+    <div class="filters">
+      <label>Mês
+        <select name="month">
+          {% for m in range(1, 13) %}
+            <option value="{{ m }}" {% if m == filters.month %}selected{% endif %}>{{ "%02d" | format(m) }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Ano
+        <input type="number" name="year" value="{{ filters.year }}" min="2000" max="2100">
+      </label>
+      <label>Fonte
+        <select name="source_id">
+          <option value="">todas</option>
+          {% for s in sources %}
+            <option value="{{ s.id }}" {% if s.id == filters.source_id %}selected{% endif %}>{{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Categoria
+        <select name="category_id">
+          <option value="">todas</option>
+          {% for c in categories %}
+            <option value="{{ c.id }}" {% if c.id == filters.category_id %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Texto
+        <input type="text" name="text" value="{{ filters.text or '' }}" placeholder="descrição...">
+      </label>
+      <button type="submit" class="btn secondary">filtrar</button>
+    </div>
+  </form>
+
+  <table class="tx-table">
+    <thead>
+      <tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Fonte</th><th>Modo</th><th>Devido em</th><th>Valor</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for tx in items %}
+        {% include "transactions/_row.html" %}
+      {% else %}
+        <tr><td colspan="8" class="empty">Sem lançamentos neste filtro.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
