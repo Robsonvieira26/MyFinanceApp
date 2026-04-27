@@ -19,16 +19,16 @@
     <tbody>
       {% for p in plans %}
         <tr>
-          <td><a href="/parcelados/{{ p.id }}" style="color: var(--text);">{{ p.description }}</a></td>
-          <td>{{ p.first_purchase_date.strftime("%d/%m/%Y") }}</td>
-          <td>{{ p.installments_count }}x</td>
-          <td class="num">R$ {{ "%.2f" | format(p.installment_amount) | replace(".", ",") }}</td>
-          <td class="num">R$ {{ "%.2f" | format(p.total_amount) | replace(".", ",") }}</td>
-          <td>
+          <td data-label="Descrição"><a href="/parcelados/{{ p.id }}" style="color: var(--text);">{{ p.description }}</a></td>
+          <td data-label="Compra em">{{ p.first_purchase_date.strftime("%d/%m/%Y") }}</td>
+          <td data-label="Parcelas">{{ p.installments_count }}x</td>
+          <td data-label="Valor/parc" class="num">R$ {{ "%.2f" | format(p.installment_amount) | replace(".", ",") }}</td>
+          <td data-label="Total" class="num">R$ {{ "%.2f" | format(p.total_amount) | replace(".", ",") }}</td>
+          <td data-label="Status">
             {% if p.active %}<span class="pill mode-credit">ativo</span>
             {% else %}<span class="pill">arquivado</span>{% endif %}
           </td>
-          <td>
+          <td data-label="Ações">
             <form method="post" action="/parcelados/{{ p.id }}/delete" onsubmit="return confirm('Apagar plano e parcelas projetadas?')" style="display:inline;">
               <button type="submit" class="btn danger" style="padding:4px 8px; font-size:9px;">×</button>
             </form>

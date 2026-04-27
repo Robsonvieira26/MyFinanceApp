@@ -1,19 +1,16 @@
 <tr>
-  <td>{{ tx.date.strftime("%d/%m") }}</td>
-  <td><a href="/lancamentos/{{ tx.id }}/editar" style="color:var(--text);">{{ tx.description }}</a></td>
-  <td>{{ tx.category.name }}</td>
-  <td>{{ tx.source.name }}</td>
-  <td><span class="pill mode-{{ tx.payment_mode }}">{{ tx.payment_mode }}</span></td>
-  <td class="due">
+  <td data-label="Data">{{ tx.date.strftime("%d/%m") }}</td>
+  <td data-label="Descrição"><a href="/lancamentos/{{ tx.id }}/editar" style="color:var(--text);">{{ tx.description }}</a></td>
+  <td data-label="Categoria">{{ tx.category.name }}</td>
+  <td data-label="Fonte">{{ tx.source.name }}</td>
+  <td data-label="Modo"><span class="pill mode-{{ tx.payment_mode }}">{{ tx.payment_mode }}</span></td>
+  <td data-label="Devido em" class="due">
     {% set due = tx.compute_due_date(tx.source) %}
-    {% if due != tx.date %}
-      <span class="due-shift">→ {{ due.strftime("%d/%m") }}</span>
-    {% else %}
-      <span class="dim">—</span>
-    {% endif %}
+    {% if due != tx.date %}<span class="due-shift">→ {{ due.strftime("%d/%m") }}</span>
+    {% else %}<span class="dim">—</span>{% endif %}
   </td>
-  <td class="num">R$ {{ "%.2f" | format(tx.amount) | replace(".", ",") }}</td>
-  <td>
+  <td data-label="Valor" class="num">R$ {{ "%.2f" | format(tx.amount) | replace(".", ",") }}</td>
+  <td data-label="Ações">
     <form method="post" action="/lancamentos/{{ tx.id }}/delete" onsubmit="return confirm('Apagar este lançamento?')" style="display:inline;">
       <button type="submit" class="btn danger" style="padding:4px 8px; font-size:9px;">×</button>
     </form>
