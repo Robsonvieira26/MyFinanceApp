@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.db import SessionLocal
 from app.routers import dashboard as dashboard_router
+from app.routers import fixed as fixed_router
 from app.routers import installments as installments_router
 from app.routers import transactions as transactions_router
 from app.services.seed import seed_all
@@ -27,6 +28,7 @@ app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 app.include_router(dashboard_router.router)
 app.include_router(transactions_router.router)
 app.include_router(installments_router.router)
+app.include_router(fixed_router.router)
 
 
 @app.get("/health", response_class=HTMLResponse)

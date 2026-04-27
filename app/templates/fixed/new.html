@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>Novo fixo<span class="blink">▊</span></h1>
+    <div class="subtitle">recorrência: mensal, anual, semanal ou a cada N meses</div>
+  </div>
+  <div class="actions">
+    <a class="btn secondary" href="/fixos">[ ← ] voltar</a>
+  </div>
+</div>
+
+<div class="content">
+  <form method="post" action="/fixos/novo" class="form-card">
+    <div class="form-row">
+      <label style="flex:1;">Descrição
+        <input type="text" name="description" required maxlength="200" autofocus>
+      </label>
+      <label>Valor esperado (R$)
+        <input type="text" name="expected_amount" placeholder="0,00" required>
+      </label>
+    </div>
+
+    <div class="form-row">
+      <label>Tipo
+        <select name="type">
+          <option value="expense" selected>gasto</option>
+          <option value="income">receita</option>
+        </select>
+      </label>
+      <label>Fonte
+        <select name="source_id" required>
+          {% for s in sources %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Modo
+        <select name="payment_mode" required>
+          <option value="debit">débito</option>
+          <option value="credit">crédito</option>
+          <option value="pix">PIX</option>
+        </select>
+      </label>
+      <label>Categoria
+        <select name="category_id" required>
+          {% for c in categories %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <div class="form-row">
+      <label>Recorrência
+        <select name="recurrence" id="recurrence-sel" onchange="updateRecurrenceFields()">
+          <option value="monthly" selected>mensal</option>
+          <option value="annual">anual</option>
+          <option value="weekly">semanal</option>
+          <option value="every_n_months">a cada N meses</option>
+        </select>
+      </label>
+      <label id="fld-dom">Dia do mês
+        <input type="number" name="day_of_month" min="1" max="31" value="5">
+      </label>
+      <label id="fld-dow" style="display:none;">Dia da semana (0=seg..6=dom)
+        <input type="number" name="day_of_week" min="0" max="6">
+      </label>
+      <label id="fld-anchor" style="display:none;">Mês do ano (1..12)
+        <input type="number" name="anchor_month" min="1" max="12">
+      </label>
+      <label id="fld-interval" style="display:none;">Intervalo (meses)
+        <input type="number" name="interval_months" min="1" max="24" value="3">
+      </label>
+    </div>
+
+    <div class="form-row">
+      <label>Ativa a partir de
+        <input type="date" name="active_from" value="{{ today }}" required>
+      </label>
+      <label>Ativa até (opcional)
+        <input type="date" name="active_until">
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">[ criar regra ]</button>
+    </div>
+  </form>
+</div>
+
+<script>
+function updateRecurrenceFields() {
+  const r = document.getElementById("recurrence-sel").value;
+  document.getElementById("fld-dom").style.display = (r === "monthly" || r === "annual" || r === "every_n_months") ? "" : "none";
+  document.getElementById("fld-dow").style.display = r === "weekly" ? "" : "none";
+  document.getElementById("fld-anchor").style.display = r === "annual" ? "" : "none";
+  document.getElementById("fld-interval").style.display = r === "every_n_months" ? "" : "none";
+}
+</script>
+{% endblock %}

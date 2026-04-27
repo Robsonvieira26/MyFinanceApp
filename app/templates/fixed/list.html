@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>Gastos fixos<span class="blink">▊</span></h1>
+    <div class="subtitle">{{ rules | length }} regra(s) · {{ "%02d" | format(month) }}/{{ year }} tem {{ occurrences | length }} ocorrência(s)</div>
+  </div>
+  <div class="actions">
+    <a class="btn" href="/fixos/novo">[ + ] novo fixo</a>
+  </div>
+</div>
+
+<div class="content">
+  <h3 style="color: var(--muted); letter-spacing: 0.22em; text-transform: uppercase; font-size: 11px; margin-bottom: 10px;">▸ Ocorrências deste mês</h3>
+  <table class="tx-table">
+    <thead>
+      <tr><th>Data</th><th>Descrição</th><th>Esperado</th><th>Real</th><th>Ação</th></tr>
+    </thead>
+    <tbody>
+      {% for o in occurrences %}
+        <tr>
+          <td>{{ o.date.strftime("%d/%m") }}</td>
+          <td>{{ o.description }}</td>
+          <td class="num">R$ {{ "%.2f" | format(o.expected_amount) | replace(".", ",") }}</td>
+          <td class="num">
+            {% if o.actual_amount %}R$ {{ "%.2f" | format(o.actual_amount) | replace(".", ",") }}
+            {% else %}<span class="dim">—</span>{% endif %}
+          </td>
+          <td>
+            {% if not o.confirmed_tx_id %}
+            <form method="post" action="/fixos/confirm" style="display:flex; gap:6px;">
+              <input type="hidden" name="rule_id" value="{{ o.rule_id }}">
+              <input type="hidden" name="occ_date" value="{{ o.date.isoformat() }}">
+              <input type="text" name="actual_amount" placeholder="{{ '%.2f' | format(o.expected_amount) }}" style="width: 90px; background: var(--bg); color: var(--text); border: 1px solid var(--border-2); padding: 4px 6px; font-family: inherit;">
+              <button type="submit" class="btn" style="padding: 4px 10px; font-size: 9px;">confirmar</button>
+            </form>
+            {% else %}
+              <span class="pill mode-pix">✓ confirmado</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5" class="empty">Nenhuma ocorrência neste mês.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h3 style="color: var(--muted); letter-spacing: 0.22em; text-transform: uppercase; font-size: 11px; margin: 24px 0 10px;">▸ Regras cadastradas</h3>
+  <table class="tx-table">
+    <thead>
+      <tr><th>Descrição</th><th>Recorrência</th><th>Esperado</th><th>Fonte</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for r in rules %}
+        <tr>
+          <td>{{ r.description }}</td>
+          <td>{{ r.recurrence }}{% if r.day_of_month %} · dia {{ r.day_of_month }}{% endif %}</td>
+          <td class="num">R$ {{ "%.2f" | format(r.expected_amount) | replace(".", ",") }}</td>
+          <td>{{ r.source.name }}</td>
+          <td>{% if r.archived %}<span class="pill">arquivada</span>{% else %}<span class="pill mode-pix">ativa</span>{% endif %}</td>
+          <td>
+            {% if not r.archived %}
+            <form method="post" action="/fixos/{{ r.id }}/archive" onsubmit="return confirm('Arquivar esta regra?')" style="display:inline;">
+              <button type="submit" class="btn secondary" style="padding:4px 8px; font-size:9px;">arquivar</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="empty">Nenhuma regra cadastrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
