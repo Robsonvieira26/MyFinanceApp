@@ -4,6 +4,19 @@ Sistema pessoal de finanças — dashboard mensal com ciclo de fatura de cartão
 
 Projeto monousuário, sem login, desenhado para uso em rede local.
 
+## Recursos
+
+- **Dashboard** mensal com gasto acumulado, alvo de orçamento, receita, saldo previsto e alertas.
+- **Lançamentos** avulsos (crédito / débito / PIX) com filtros por mês, fonte, categoria e texto.
+- **Ciclo de fatura** configurável por fonte (fechamento + vencimento).
+- **Parcelamentos** no crédito com duas formas de entrada (total ou valor da parcela), primeira parcela respeitando o fechamento.
+- **Gastos fixos** com recorrência flexível (mensal, anual, semanal, a cada N meses) e confirmação de valor real.
+- **Orçamento** alvo total + por categoria com alertas automáticos (80% / 90% / 100%).
+- **Metas** de economia com progresso acumulado.
+- **Relatórios** com gráficos de evolução mensal e breakdown por categoria (Chart.js).
+- **Projeção** dos próximos 3/6/12 meses considerando fixos + parcelas.
+- **Responsivo** para desktop, tablet e mobile.
+
 ## Stack
 
 - Python 3.12 + FastAPI + HTMX + Jinja2
@@ -14,7 +27,7 @@ Projeto monousuário, sem login, desenhado para uso em rede local.
 
 ## Pré-requisitos
 
-- Docker e docker compose instalados.
+- Docker e docker compose v2 instalados.
 - Git.
 
 ## Primeira execução
@@ -23,13 +36,8 @@ Projeto monousuário, sem login, desenhado para uso em rede local.
 git clone git@github.com:Robsonvieira26/MyFinanceApp.git
 cd MyFinanceApp
 cp .env.example .env
-# edite .env e defina POSTGRES_PASSWORD
+# edite .env e defina POSTGRES_PASSWORD (não use a senha default)
 docker compose up -d --build
-```
-
-Aplique as migrations e rode o seed inicial:
-
-```bash
 docker compose exec web alembic upgrade head
 ```
 
@@ -42,46 +50,101 @@ Acesse em `http://<host>:8765`.
 | Web        | 8765 | 8000      |
 | PostgreSQL | 5433 | 5432      |
 
-## Atualização (produção)
+Portas não-padrão propositalmente — se precisar mudar, ajuste `docker-compose.yml`.
+
+## Operação
+
+### Atualização segura
 
 ```bash
 ./scripts/update.sh
 ```
 
-O script faz backup automático do banco antes de atualizar (`git pull` + rebuild + migrations).
+Fluxo:
 
-## Backup manual
+1. Backup automático (`backup.sh`)
+2. `git pull origin main`
+3. `docker compose build`
+4. `docker compose up -d`
+5. `alembic upgrade head`
+
+### Backup manual
 
 ```bash
 ./scripts/backup.sh
 ```
 
-Salva dump em `backups/finance_YYYY-MM-DD_HHMMSS.sql.gz`. Mantém os últimos 14 backups.
+Gera `backups/finance_YYYY-MM-DD_HHMMSS.sql.gz`. Mantém os últimos 14 (override via `BACKUP_RETENTION`).
 
-## Restauração
+### Restauração
 
 ```bash
 ./scripts/restore.sh backups/finance_2026-04-23_193000.sql.gz
 ```
 
-Pede confirmação explícita antes de apagar dados.
+Pede confirmação digitando `yes`. Para o web, restaura o dump, sobe novamente.
+
+### Agendamento recomendado (crontab do host)
+
+```cron
+# Backup diário às 03:30
+30 3 * * * cd /caminho/para/MyFinanceApp && ./scripts/backup.sh >> /var/log/finance-backup.log 2>&1
+```
 
 ## Estrutura
 
 ```
-app/         # código do servidor FastAPI
-  models/    # SQLAlchemy
-  schemas/   # Pydantic
-  services/  # regras de negócio puras
-  routers/   # endpoints HTTP
-  templates/ # Jinja2
-  static/    # CSS + JS
-migrations/  # Alembic
+app/
+  models/       SQLAlchemy
+  schemas/      Pydantic
+  services/     regras de negócio puras (testáveis sem HTTP)
+  routers/      endpoints HTTP
+  templates/    Jinja2 + HTMX
+  static/       CSS + JS
+migrations/     Alembic versions
 tests/
-scripts/     # update/backup/restore
-docker/      # Dockerfile e init.sql
+  services/     testes das regras puras
+scripts/        update.sh, backup.sh, restore.sh
+docker/         Dockerfile + init.sql
+docs/
+  superpowers/  spec e plano de implementação
+```
+
+## Testes
+
+```bash
+docker compose run --rm web pytest -v
+```
+
+## Troubleshooting
+
+**Web não sobe após update:**
+
+```bash
+docker compose logs web | tail -50
+```
+
+**Banco corrompido ou migration travada:**
+Restaurar o último backup bom:
+
+```bash
+./scripts/restore.sh backups/<último-bom>.sql.gz
+```
+
+**Esqueci a senha do banco:**
+Está em `.env`. Se perdeu, recrie o volume (perde dados — restaure do backup):
+
+```bash
+docker compose down -v   # CUIDADO: apaga volume
+# editar .env com nova senha
+docker compose up -d --build
+./scripts/restore.sh backups/<dump>.sql.gz
 ```
 
 ## Contribuição
 
 Projeto pessoal. Não aceita PRs externos.
+
+## Licença
+
+Uso pessoal.
