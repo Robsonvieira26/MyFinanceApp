@@ -408,8 +408,97 @@ body::after {
 .form-actions { margin-top: 10px; display: flex; gap: 10px; }
 
 /* ================================================
-   DASHBOARD — HERO
+   DASHBOARD — HERO STRIP (4 horizontal cards)
    ================================================ */
+.hero-strip {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  position: relative;
+  overflow: hidden;
+}
+.hero-strip::before {
+  content: "";
+  position: absolute; top: 0; right: 0;
+  width: 380px; height: 100%;
+  background: radial-gradient(ellipse at 100% 50%, rgba(192,132,252,0.08), transparent 60%);
+  pointer-events: none;
+}
+.hero-strip::after {
+  content: "";
+  position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: linear-gradient(to bottom, var(--primary), transparent);
+}
+.hcard {
+  padding: 18px 22px;
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; justify-content: center;
+  min-height: 110px;
+  position: relative; z-index: 1;
+}
+.hcard:first-child { border-left: none; }
+.hcard-main { padding: 18px 26px; }
+
+.hcard .hk {
+  font-size: 9px; color: var(--muted);
+  letter-spacing: 0.28em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.hcard .hval {
+  font-size: 22px; font-weight: 500; color: var(--text);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+}
+.hcard .hval.ok   { color: var(--ok);   text-shadow: 0 0 14px rgba(74,199,118,0.35); }
+.hcard .hval.pu   { color: var(--primary); text-shadow: 0 0 14px var(--primary-glow); }
+.hcard .hval.warn { color: var(--warn); }
+
+.alert-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 12px;
+  background: rgba(255,139,107,0.10);
+  border: 1px solid var(--warn);
+  color: var(--warn);
+  font-size: 12px; letter-spacing: 0.12em;
+  align-self: flex-start;
+  font-variant-numeric: tabular-nums;
+}
+.alert-pill .ap-n { font-size: 14px; font-weight: 600; }
+.alert-pill .ap-l { font-size: 9.5px; letter-spacing: 0.2em; }
+
+/* ── Progress bar row ── */
+.hprog {
+  border: 1px solid var(--border);
+  border-top: none;
+  background: var(--bg-2);
+  padding: 12px 22px 14px;
+}
+.hprog-bar {
+  height: 4px; background: var(--bg-4);
+  position: relative; overflow: hidden;
+}
+.hprog-bar > div {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-3), var(--primary), var(--primary-soft));
+  box-shadow: 0 0 12px var(--primary-glow);
+  position: relative;
+}
+.hprog-bar > div::after {
+  content: "";
+  position: absolute; top: 0; right: -60px;
+  width: 60px; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  animation: shimmer 2.4s 0.6s ease-in-out infinite;
+}
+.hprog-lbl {
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px;
+  margin-top: 8px; font-size: 9.5px;
+  color: var(--muted); letter-spacing: 0.1em;
+}
+
+/* ── Legacy .hero block (kept for older templates) ── */
 .hero {
   border: 1px solid var(--border);
   background: var(--bg-2);
@@ -438,14 +527,16 @@ body::after {
   letter-spacing: 0.28em; text-transform: uppercase;
   margin-bottom: 6px;
 }
-.hero .hero-num {
-  font-size: 52px; font-weight: 500;
+.hero .hero-num,
+.hcard-main .hero-num {
+  font-size: 38px; font-weight: 500;
   color: var(--primary); line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   text-shadow: 0 0 28px var(--primary-glow);
   animation: num-emerge 0.4s ease-out both;
 }
+.hcard-main .hero-num { font-size: 34px; }
 @keyframes num-emerge {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -511,7 +602,12 @@ body::after {
 .grid-3 {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
+  gap: 14px;
+}
+.grid-4 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 12px;
 }
 .pnl {
   border: 1px solid var(--border);
@@ -541,6 +637,16 @@ body::after {
 .line.line-4 {
   grid-template-columns: 1fr auto auto auto;
 }
+.line.line-3 {
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+}
+.line.line-2 {
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+.plan-row .nm.pu { color: var(--primary); }
+.plan-row .tp { font-size: 10px; color: var(--muted); }
 .line:last-child { border-bottom: none; }
 .line .nm  { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .line .pct { color: var(--dim); font-size: 9.5px; min-width: 34px; text-align: right; }
@@ -624,6 +730,12 @@ body::after {
   .topbar  { padding: 0 16px; }
   .hero    { grid-template-columns: 1fr; gap: 20px; }
   .grid-3  { grid-template-columns: 1fr 1fr; }
+  .grid-4  { grid-template-columns: 1fr 1fr; }
+  .hero-strip { grid-template-columns: 1fr 1fr; }
+  .hcard { border-left: 1px solid var(--border); }
+  .hcard:nth-child(odd) { border-left: none; }
+  .hcard:nth-child(n+3) { border-top: 1px solid var(--border); }
+  .hcard-main .hero-num { font-size: 30px; }
 }
 
 /* ================================================
@@ -677,8 +789,17 @@ body::after {
   .hero .m { padding-left: 8px; }
   .hero .m .val { font-size: 14px; }
 
+  /* Hero strip mobile */
+  .hero-strip { grid-template-columns: 1fr; }
+  .hcard { border-left: none; border-top: 1px solid var(--border); padding: 14px 16px; min-height: auto; }
+  .hcard:first-child { border-top: none; }
+  .hcard-main .hero-num { font-size: 28px; }
+  .hprog { padding: 10px 16px 12px; }
+  .hprog-lbl { flex-direction: column; gap: 4px; align-items: flex-start; }
+
   /* Panels */
   .grid-3 { grid-template-columns: 1fr; gap: 10px; }
+  .grid-4 { grid-template-columns: 1fr; gap: 10px; }
   .pnl-b  { padding: 8px 12px 12px; }
   .line   { font-size: 13px; gap: 8px; padding: 9px 0; }
   .line .vl  { font-size: 13px; min-width: auto; }
