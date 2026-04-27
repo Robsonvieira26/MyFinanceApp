@@ -7,8 +7,9 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.deps import get_db
-from app.models import Category
+from app.models import Category, Source
 from app.services import budgets as bud_svc
+from app.services import sources as src_svc
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
@@ -72,6 +73,61 @@ def set_cat_budget(
     else:
         bud_svc.set_category(db, category_id=cat_id, amount=val)
     return RedirectResponse("/config/categorias", status_code=303)
+
+
+@router.get("/fontes", response_class=HTMLResponse)
+def sources_view(request: Request, db: Session = Depends(get_db)) -> HTMLResponse:
+    sources = src_svc.list_all(db, include_archived=True)
+    return templates.TemplateResponse(
+        request, "config/sources.html",
+        {
+            "active_nav": "sources",
+            "page_title": "Fontes",
+            "sources": sources,
+        },
+    )
+
+
+@router.post("/fontes/novo")
+def create_source(
+    db: Session = Depends(get_db),
+    slug: str = Form(...),
+    name: str = Form(...),
+    kind: str = Form(...),
+    closing_day: str = Form(""),
+    due_day: str = Form(""),
+):
+    if db.query(Source).filter_by(slug=slug).first():
+        raise HTTPException(status_code=400, detail="Slug já existe")
+    cd = int(closing_day) if closing_day.strip() else None
+    dd = int(due_day) if due_day.strip() else None
+    src_svc.create(db, slug=slug, name=name, kind=kind, closing_day=cd, due_day=dd)
+    return RedirectResponse("/config/fontes", status_code=303)
+
+
+@router.post("/fontes/{source_id}/billing")
+def update_source_billing(
+    source_id: int,
+    db: Session = Depends(get_db),
+    closing_day: str = Form(""),
+    due_day: str = Form(""),
+):
+    cd = int(closing_day) if closing_day.strip() else None
+    dd = int(due_day) if due_day.strip() else None
+    src_svc.update_billing(db, source_id, closing_day=cd, due_day=dd)
+    return RedirectResponse("/config/fontes", status_code=303)
+
+
+@router.post("/fontes/{source_id}/archive")
+def archive_source(source_id: int, db: Session = Depends(get_db)):
+    src_svc.archive(db, source_id)
+    return RedirectResponse("/config/fontes", status_code=303)
+
+
+@router.post("/fontes/{source_id}/unarchive")
+def unarchive_source(source_id: int, db: Session = Depends(get_db)):
+    src_svc.unarchive(db, source_id)
+    return RedirectResponse("/config/fontes", status_code=303)
 
 
 @router.post("/categorias/novo")
