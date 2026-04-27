@@ -29,7 +29,7 @@
             <span style="font-size:10px; padding:2px 7px; border-radius:2px;
               background: {% if s.kind == 'hybrid' %}rgba(192,132,252,0.15){% else %}rgba(100,200,120,0.12){% endif %};
               color: {% if s.kind == 'hybrid' %}var(--primary-3){% else %}var(--ok){% endif %};">
-              {{ s.kind }}
+              {{ 'híbrido' if s.kind == 'hybrid' else 'débito' }}
             </span>
           </td>
           <td data-label="Fechamento">
@@ -77,8 +77,8 @@
       </label>
       <label>Tipo
         <select name="kind" style="background:var(--bg); color:var(--text); border:1px solid var(--border-2); padding:6px 8px; font-family:var(--font); font-size:12px;">
-          <option value="hybrid">hybrid (crédito)</option>
-          <option value="debit">debit (débito/PIX)</option>
+          <option value="hybrid">híbrido (crédito + débito)</option>
+          <option value="debit">débito (débito/PIX)</option>
         </select>
       </label>
     </div>
