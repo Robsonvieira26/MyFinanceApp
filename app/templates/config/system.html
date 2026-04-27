@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>Sistema<span class="blink">▊</span></h1>
+    <div class="subtitle">configurações globais</div>
+  </div>
+</div>
+
+<div class="content">
+  <form method="post" action="/config/sistema/budget" class="form-card" style="max-width:440px;">
+    <div class="form-row">
+      <label style="flex:1;">Orçamento total mensal (R$)
+        <input type="text" name="amount" value="{{ '%.2f' | format(total_budget) }}" required>
+      </label>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn">[ salvar ]</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

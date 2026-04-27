@@ -6,6 +6,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.db import SessionLocal
+from app.routers import config as config_router
 from app.routers import dashboard as dashboard_router
 from app.routers import fixed as fixed_router
 from app.routers import installments as installments_router
@@ -25,6 +26,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="MyFinanceApp", version="0.1.0", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
+app.include_router(config_router.router)
 app.include_router(dashboard_router.router)
 app.include_router(transactions_router.router)
 app.include_router(installments_router.router)
