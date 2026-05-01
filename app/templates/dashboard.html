@@ -10,7 +10,9 @@
   </div>
   <div class="actions">
     <a class="btn secondary" href="/lancamentos">[ L ] lançamentos</a>
-    <a class="btn" href="/lancamentos/novo">[ + ] adicionar</a>
+    <a class="btn"
+       hx-get="/lancamentos/novo" hx-select="#modal-frag" hx-target="#modal-body"
+       data-modal-title="novo lançamento">[ + ] adicionar</a>
   </div>
 </div>
 

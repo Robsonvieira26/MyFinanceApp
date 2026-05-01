@@ -7,7 +7,9 @@
     <div class="subtitle">{{ rules | length }} regra(s) · {{ "%02d" | format(month) }}/{{ year }} tem {{ occurrences | length }} ocorrência(s)</div>
   </div>
   <div class="actions">
-    <a class="btn" href="/fixos/novo">[ + ] novo fixo</a>
+    <a class="btn"
+       hx-get="/fixos/novo" hx-select="#modal-frag" hx-target="#modal-body"
+       data-modal-title="novo fixo">[ + ] novo fixo</a>
   </div>
 </div>
 

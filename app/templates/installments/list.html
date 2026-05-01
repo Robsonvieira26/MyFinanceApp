@@ -7,7 +7,9 @@
     <div class="subtitle">{{ plans | length }} plano(s) cadastrado(s)</div>
   </div>
   <div class="actions">
-    <a class="btn" href="/parcelados/novo">[ + ] novo parcelamento</a>
+    <a class="btn"
+       hx-get="/parcelados/novo" hx-select="#modal-frag" hx-target="#modal-body"
+       data-modal-title="novo parcelamento">[ + ] novo parcelamento</a>
   </div>
 </div>
 

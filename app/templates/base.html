@@ -12,6 +12,18 @@
 </head>
 <body>
 <div class="side-backdrop"></div>
+
+<div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-panel">
+    <div class="modal-hdr">
+      <span class="modal-tag">›_</span>
+      <span class="modal-title" id="modal-title">formulário</span>
+      <button class="modal-close" id="modal-close" aria-label="fechar">✕</button>
+    </div>
+    <div id="modal-body" class="modal-body"></div>
+  </div>
+</div>
+
 <div class="app">
   {% include "_partials/sidebar.html" %}
   <main class="main">

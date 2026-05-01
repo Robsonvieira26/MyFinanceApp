@@ -7,7 +7,9 @@
     <div class="subtitle">{{ goals | length }} meta(s) · inclui arquivadas</div>
   </div>
   <div class="actions">
-    <a class="btn" href="/metas/nova">[ + ] nova meta</a>
+    <a class="btn"
+       hx-get="/metas/nova" hx-select="#modal-frag" hx-target="#modal-body"
+       data-modal-title="nova meta">[ + ] nova meta</a>
   </div>
 </div>
 

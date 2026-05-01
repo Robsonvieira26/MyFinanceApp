@@ -12,6 +12,7 @@
 </div>
 
 <div class="content">
+  <div id="modal-frag">
   <form method="post" action="/parcelados/novo" class="form-card" id="inst-form">
     <div class="form-row">
       <label style="flex:1;">Descrição
@@ -63,12 +64,12 @@
       <button type="submit" class="btn">[ criar parcelamento ]</button>
     </div>
   </form>
+  <script>
+    function toggleMode(mode) {
+      document.getElementById("row-total").style.display = mode === "total" ? "" : "none";
+      document.getElementById("row-per").style.display = mode === "per_installment" ? "" : "none";
+    }
+  </script>
+  </div>
 </div>
-
-<script>
-  function toggleMode(mode) {
-    document.getElementById("row-total").style.display = mode === "total" ? "" : "none";
-    document.getElementById("row-per").style.display = mode === "per_installment" ? "" : "none";
-  }
-</script>
 {% endblock %}
