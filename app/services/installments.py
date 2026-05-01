@@ -4,19 +4,26 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from calendar import monthrange
+
 from app.models import InstallmentPlan, Source, Transaction
-from app.services.fatura import fatura_due_month
+from app.services.fatura import fatura_bill_date, fatura_due_month
 
 
 def _quantize(value: Decimal) -> Decimal:
     return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
-def _next_due_date(base_due: date, months_ahead: int) -> date:
-    month_index = base_due.month - 1 + months_ahead
-    year = base_due.year + month_index // 12
+def _last_day_of_month(year: int, month: int) -> date:
+    return date(year, month, monthrange(year, month)[1])
+
+
+def _next_bill_date(base_bill: date, months_ahead: int) -> date:
+    """Advance base_bill by N months, returning last day of that month."""
+    month_index = base_bill.month - 1 + months_ahead
+    year = base_bill.year + month_index // 12
     month = month_index % 12 + 1
-    return date(year, month, base_due.day)
+    return _last_day_of_month(year, month)
 
 
 def create_plan(db: Session, data: dict[str, Any]) -> InstallmentPlan:
@@ -52,15 +59,13 @@ def create_plan(db: Session, data: dict[str, Any]) -> InstallmentPlan:
     db.add(plan)
     db.flush()
 
-    first_due = fatura_due_month(
-        plan.first_purchase_date, source.closing_day, source.due_day
-    )
+    first_bill = fatura_bill_date(plan.first_purchase_date, source.closing_day)
     for i in range(count):
-        due = _next_due_date(first_due, i)
+        bill_date = _next_bill_date(first_bill, i)
         tx = Transaction(
             description=f"{plan.description} — parcela {i + 1}/{count}",
             amount=per,
-            date=due,
+            date=bill_date,
             source_id=source.id,
             category_id=plan.category_id,
             payment_mode="credit",

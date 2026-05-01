@@ -72,6 +72,10 @@ def dashboard_view(
         float((total_spent / total_budget) * 100) if total_budget > 0 else 0
     )
 
+    prev_y, prev_m = (y - 1, 12) if m == 1  else (y, m - 1)
+    next_y, next_m = (y + 1, 1)  if m == 12 else (y, m + 1)
+    is_current = (y == today.year and m == today.month)
+
     return templates.TemplateResponse(
         request, "dashboard.html",
         {
@@ -90,5 +94,8 @@ def dashboard_view(
             "burn_per_day": burn_per_day,
             "today": today,
             "active_plans": active_plans,
+            "prev_y": prev_y, "prev_m": prev_m,
+            "next_y": next_y, "next_m": next_m,
+            "is_current": is_current,
         },
     )

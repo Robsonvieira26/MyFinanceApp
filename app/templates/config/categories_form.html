@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>Nova categoria<span class="blink">▊</span></h1>
+  </div>
+</div>
+<div class="content">
+  <div id="modal-frag">
+    <form method="post" action="/config/categorias/novo" class="form-card">
+      <div class="form-row">
+        <label style="flex:1;">Nome
+          <input type="text" name="name" id="cat-name" required maxlength="80" autofocus>
+        </label>
+        <label style="position:relative; flex-shrink:0;">Ícone
+          <div class="icon-picker-wrap">
+            <span class="material-icons icon-picker-preview" id="icon-preview">category</span>
+            <input type="text" class="icon-picker-search" id="icon-search" placeholder="buscar..." autocomplete="off" spellcheck="false">
+            <input type="hidden" name="icon" id="icon-value" value="category">
+          </div>
+          <div class="icon-picker-dropdown" id="icon-dropdown"></div>
+        </label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn">[ criar ]</button>
+      </div>
+    </form>
+
+    <style>
+    .icon-picker-wrap {
+      display: flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border-2);
+      background: var(--bg);
+      padding: 5px 8px;
+    }
+    .icon-picker-preview { font-size: 18px; color: var(--primary); flex-shrink: 0; }
+    .icon-picker-search {
+      border: none !important; background: transparent !important;
+      padding: 0 !important; margin: 0 !important;
+      font-size: 11px; color: var(--text);
+      font-family: inherit; width: 110px; outline: none;
+      letter-spacing: 0.05em;
+    }
+    .icon-picker-dropdown {
+      position: absolute; top: calc(100% + 2px); left: 0;
+      width: 280px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--primary);
+      z-index: 300;
+      max-height: 240px; overflow-y: auto;
+      display: none;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+    }
+    .icon-picker-dropdown.open { display: grid; grid-template-columns: repeat(auto-fill, 44px); gap: 2px; padding: 8px; }
+    .icon-opt { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 3px; transition: background 0.1s; }
+    .icon-opt:hover { background: rgba(192,132,252,0.18); }
+    .icon-opt .material-icons { font-size: 22px; color: var(--muted); pointer-events: none; }
+    .icon-opt:hover .material-icons, .icon-opt.selected .material-icons { color: var(--primary); }
+    </style>
+
+    <script>
+    (function() {
+      const ICONS = [
+        'account_balance','payments','credit_card','savings','trending_up','trending_down',
+        'attach_money','money','currency_exchange','receipt','receipt_long','request_quote',
+        'store','shopping_cart','shopping_bag','local_atm','price_check','sell','loyalty',
+        'wallet','account_balance_wallet','bar_chart','pie_chart','show_chart','analytics',
+        'assessment','monetization_on','money_off','paid','point_of_sale','redeem',
+        'restaurant','local_cafe','local_bar','fastfood','dining','bakery_dining',
+        'set_meal','lunch_dining','coffee','local_pizza','ramen_dining','wine_bar',
+        'directions_car','flight','train','subway','directions_bike','two_wheeler',
+        'local_gas_station','directions_bus','electric_car','local_taxi','motorcycle',
+        'medical_services','local_hospital','fitness_center','health_and_safety',
+        'medication','healing','monitor_heart','spa','self_improvement','directions_run',
+        'home','house','apartment','cottage','weekend','kitchen','plumbing',
+        'electrical_services','roofing','yard','cleaning_services','bathtub','chair',
+        'movie','music_note','sports_esports','theater_comedy','headphones','tv',
+        'sports_basketball','sports_soccer','sports_tennis','beach_access','celebration',
+        'nightlife','casino','pool','golf_course','videogame_asset',
+        'school','menu_book','library_books','science','calculate','laptop_mac',
+        'psychology','engineering','auto_stories','class',
+        'phone_android','laptop','computer','devices','headset','camera_alt','print',
+        'work','business','badge','corporate_fare','domain','settings','build',
+        'construction','precision_manufacturing',
+        'local_mall','local_grocery_store','local_pharmacy','local_florist','pet',
+        'checkroom','dry_cleaning','hardware','liquor',
+        'category','star','favorite','bookmark','flag','label','tag','new_releases',
+        'volunteer_activism','child_care','groups','public','travel_explore','map',
+        'place','explore','language','cloud','wb_sunny','eco','water','air',
+        'dinner_dining','local_shipping','inventory','park',
+      ];
+      const search   = document.getElementById('icon-search');
+      const dropdown = document.getElementById('icon-dropdown');
+      const preview  = document.getElementById('icon-preview');
+      const hidden   = document.getElementById('icon-value');
+      function renderIcons(filter) {
+        const q = (filter || '').toLowerCase().replace(/\s+/g,'_');
+        const list = q ? ICONS.filter(ic => ic.includes(q)) : ICONS;
+        dropdown.innerHTML = '';
+        list.slice(0,140).forEach(ic => {
+          const div = document.createElement('div');
+          div.className = 'icon-opt' + (ic === hidden.value ? ' selected' : '');
+          div.title = ic;
+          div.innerHTML = `<span class="material-icons">${ic}</span>`;
+          div.addEventListener('mousedown', e => {
+            e.preventDefault();
+            hidden.value = ic; preview.textContent = ic; search.value = ic;
+            dropdown.classList.remove('open');
+            dropdown.querySelectorAll('.icon-opt').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+          });
+          dropdown.appendChild(div);
+        });
+      }
+      search.addEventListener('focus', () => { renderIcons(search.value); dropdown.classList.add('open'); });
+      search.addEventListener('input', () => { renderIcons(search.value); dropdown.classList.add('open'); });
+      search.addEventListener('blur',  () => { setTimeout(() => dropdown.classList.remove('open'), 160); });
+      search.value = hidden.value;
+    })();
+    </script>
+  </div>
+</div>
+{% endblock %}

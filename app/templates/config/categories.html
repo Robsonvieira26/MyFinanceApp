@@ -6,19 +6,25 @@
     <h1>Categorias<span class="blink">▊</span></h1>
     <div class="subtitle">{{ categories | length }} ativa(s) · orçamento por categoria</div>
   </div>
+  <div class="actions">
+    <a class="btn"
+       hx-get="/config/categorias/novo" hx-select="#modal-frag" hx-target="#modal-body"
+       data-modal-title="nova categoria">[ + ] nova categoria</a>
+  </div>
 </div>
 
 <div class="content">
   <table class="tx-table">
     <thead>
-      <tr><th>Ícone</th><th>Nome</th><th>Slug</th><th>Alvo mensal</th><th></th></tr>
+      <tr><th style="width:48px;">Ícone</th><th>Nome</th><th>Alvo mensal</th><th></th></tr>
     </thead>
     <tbody>
       {% for c in categories %}
         <tr>
-          <td>{{ c.icon or '—' }}</td>
+          <td style="text-align:center;">
+            <span class="material-icons" style="font-size:20px; vertical-align:middle; color:var(--primary);">{{ c.icon or 'category' }}</span>
+          </td>
           <td>{{ c.name }}</td>
-          <td><code style="font-size:11px; color:var(--muted);">{{ c.slug }}</code></td>
           <td>
             <form method="post" action="/config/categorias/{{ c.id }}/budget" style="display:flex; gap:6px; align-items:center;">
               <input type="text" name="amount" value="{{ '%.2f' | format(budgets_map.get(c.id, 0)) }}" style="width: 100px; background: var(--bg); color: var(--text); border: 1px solid var(--border-2); padding: 4px 6px;">
@@ -31,22 +37,5 @@
     </tbody>
   </table>
 
-  <h3 style="color: var(--muted); letter-spacing: 0.22em; text-transform: uppercase; font-size: 11px; margin: 24px 0 10px;">▸ Nova categoria</h3>
-  <form method="post" action="/config/categorias/novo" class="form-card" style="max-width:560px;">
-    <div class="form-row">
-      <label>Slug (único, sem espaços)
-        <input type="text" name="slug" required maxlength="48" pattern="[a-z0-9-]+">
-      </label>
-      <label style="flex:1;">Nome
-        <input type="text" name="name" required maxlength="80">
-      </label>
-      <label>Ícone
-        <input type="text" name="icon" maxlength="8" placeholder="🎁">
-      </label>
-    </div>
-    <div class="form-actions">
-      <button type="submit" class="btn">[ criar ]</button>
-    </div>
-  </form>
 </div>
 {% endblock %}

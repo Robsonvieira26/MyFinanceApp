@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h1>Faturas<span class="blink">▊</span></h1>
+    <div class="subtitle">liquidação de cartões · débito automático no vencimento</div>
+  </div>
+</div>
+
+<div class="content">
+
+  {% if not faturas %}
+    <div class="empty" style="padding: 32px; text-align:center; color: var(--dim);">
+      Nenhuma transação de crédito encontrada. Adicione parcelamentos ou lançamentos via cartão.
+    </div>
+  {% else %}
+
+  <table class="tx-table">
+    <thead>
+      <tr>
+        <th>Cartão</th>
+        <th>Fatura</th>
+        <th class="num">Total</th>
+        <th>Vencimento</th>
+        <th>Status</th>
+        <th style="min-width:220px;">Liquidar</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in faturas %}
+        <tr class="{% if f.is_paid %}row-paid{% endif %}">
+          <td>{{ f.source.name }}</td>
+          <td style="font-variant-numeric: tabular-nums; letter-spacing: 0.08em;">
+            {{ f.billing_label }}
+          </td>
+          <td class="num">R$ {{ "%.2f" | format(f.total) | replace(".", ",") }}</td>
+          <td style="color: var(--muted); font-size: 11px;">
+            {{ f.due_date.strftime("%d/%m/%Y") }}
+          </td>
+          <td>
+            {% if f.is_paid %}
+              <span class="pill mode-debit">liquidada</span>
+            {% else %}
+              <span class="pill warn-pill">pendente</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if f.is_paid %}
+              <span style="color: var(--ok); font-size: 10px; letter-spacing: 0.15em;">
+                ✓ {{ f.settlement.source.name if f.settlement.source else '—' }}
+                · {{ f.settlement.date.strftime("%d/%m") }}
+              </span>
+              <form method="post" action="/faturas/estornar/{{ f.settlement.id }}"
+                    style="display:inline; margin-left:8px;"
+                    onsubmit="return confirm('Estornar esta liquidação?')">
+                <button type="submit" class="btn danger" style="padding:2px 6px; font-size:9px;">×</button>
+              </form>
+            {% else %}
+              <form method="post" action="/faturas/liquidar" class="fatura-pay-form">
+                <input type="hidden" name="credit_source_id" value="{{ f.source.id }}">
+                <input type="hidden" name="billing_year"     value="{{ f.billing_year }}">
+                <input type="hidden" name="billing_month"    value="{{ f.billing_month }}">
+                <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                  <select name="checking_source_id" required style="font-size:10px; padding:4px 6px; background:var(--bg); color:var(--text); border:1px solid var(--border-2);">
+                    {% for s in debit_sources %}
+                      <option value="{{ s.id }}">{{ s.name }}</option>
+                    {% endfor %}
+                  </select>
+                  <select name="category_id" required style="font-size:10px; padding:4px 6px; background:var(--bg); color:var(--text); border:1px solid var(--border-2);">
+                    {% for c in categories %}
+                      <option value="{{ c.id }}">{{ c.name }}</option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit" class="btn secondary" style="padding:4px 10px; font-size:9px; white-space:nowrap;">
+                    [ pagar dia {{ f.due_date.day }} ]
+                  </button>
+                </div>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% endif %}
+</div>
+
+<style>
+tr.row-paid td { opacity: 0.55; }
+tr.row-paid td:last-child { opacity: 1; }
+.warn-pill {
+  background: rgba(255,179,71,0.12);
+  color: var(--warn);
+  border: 1px solid rgba(255,179,71,0.3);
+  padding: 2px 8px; font-size: 9px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  border-radius: 2px;
+}
+.mode-debit {
+  background: rgba(74,222,128,0.1);
+  color: var(--ok);
+  border: 1px solid rgba(74,222,128,0.25);
+  padding: 2px 8px; font-size: 9px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  border-radius: 2px;
+}
+</style>
+{% endblock %}

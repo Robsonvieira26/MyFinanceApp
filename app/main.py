@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from app.db import SessionLocal
 from app.routers import config as config_router
 from app.routers import dashboard as dashboard_router
+from app.routers import faturas as faturas_router
 from app.routers import fixed as fixed_router
 from app.routers import goals as goals_router
 from app.routers import installments as installments_router
@@ -31,6 +32,7 @@ app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 app.include_router(config_router.router)
 app.include_router(dashboard_router.router)
+app.include_router(faturas_router.router)
 app.include_router(goals_router.router)
 app.include_router(transactions_router.router)
 app.include_router(installments_router.router)

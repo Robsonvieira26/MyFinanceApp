@@ -1,3 +1,5 @@
+import re
+import unicodedata
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
@@ -13,6 +15,14 @@ from app.services import sources as src_svc
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
+
+
+def _slugify(text: str) -> str:
+    text = unicodedata.normalize("NFD", text)
+    text = "".join(c for c in text if unicodedata.category(c) != "Mn")
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9]+", "-", text)
+    return text.strip("-") or "categoria"
 
 router = APIRouter(prefix="/config", tags=["config"])
 
@@ -130,15 +140,25 @@ def unarchive_source(source_id: int, db: Session = Depends(get_db)):
     return RedirectResponse("/config/fontes", status_code=303)
 
 
+@router.get("/categorias/novo", response_class=HTMLResponse)
+def new_category_view(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse(
+        request, "config/categories_form.html",
+        {"active_nav": "categories", "page_title": "Nova categoria"},
+    )
+
+
 @router.post("/categorias/novo")
 def create_category(
     db: Session = Depends(get_db),
-    slug: str = Form(...),
     name: str = Form(...),
     icon: str = Form(""),
 ):
-    if db.query(Category).filter_by(slug=slug).first():
-        raise HTTPException(status_code=400, detail="Slug já existe")
+    base = _slugify(name)
+    slug, n = base, 1
+    while db.query(Category).filter_by(slug=slug).first():
+        slug = f"{base}-{n}"
+        n += 1
     cat = Category(slug=slug, name=name, icon=icon or None)
     db.add(cat)
     db.commit()
