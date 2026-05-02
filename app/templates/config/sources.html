@@ -6,6 +6,11 @@
     <h1>Fontes<span class="blink">▊</span></h1>
     <div class="subtitle">{{ sources | selectattr("archived", "equalto", false) | list | length }} ativa(s) · cartões e contas</div>
   </div>
+  <div class="actions">
+    <a class="btn"
+       hx-get="/config/fontes/novo" hx-select="#modal-frag" hx-target="#modal-body"
+       data-modal-title="nova fonte">[ + ] nova fonte</a>
+  </div>
 </div>
 
 <div class="content">
@@ -13,10 +18,8 @@
     <thead>
       <tr>
         <th>Nome</th>
-        <th>Slug</th>
         <th>Tipo</th>
-        <th>Fechamento</th>
-        <th>Vencimento</th>
+        <th>Fechamento · Vencimento</th>
         <th></th>
       </tr>
     </thead>
@@ -24,7 +27,6 @@
       {% for s in sources %}
         <tr {% if s.archived %}style="opacity:0.45;"{% endif %}>
           <td data-label="Nome">{{ s.name }}</td>
-          <td data-label="Slug"><code style="font-size:11px; color:var(--muted);">{{ s.slug }}</code></td>
           <td data-label="Tipo">
             <span style="font-size:10px; padding:2px 7px; border-radius:2px;
               background: {% if s.kind == 'hybrid' %}rgba(192,132,252,0.15){% else %}rgba(100,200,120,0.12){% endif %};
@@ -32,13 +34,14 @@
               {{ 'híbrido' if s.kind == 'hybrid' else 'débito' }}
             </span>
           </td>
-          <td data-label="Fechamento">
+          <td data-label="Fechamento · Vencimento">
             {% if s.kind == 'hybrid' %}
               <form method="post" action="/config/fontes/{{ s.id }}/billing" style="display:flex; gap:6px; align-items:center;">
-                <input type="number" name="closing_day" value="{{ s.closing_day or '' }}" min="1" max="31"
+                <input type="number" name="closing_day" value="{{ s.closing_day or '' }}" min="1" max="28"
                   style="width:52px; background:var(--bg); color:var(--text); border:1px solid var(--border-2); padding:4px 6px; text-align:center;"
-                  placeholder="dia">
-                <input type="number" name="due_day" value="{{ s.due_day or '' }}" min="1" max="31"
+                  placeholder="fech">
+                <span style="color:var(--dim); font-size:11px;">·</span>
+                <input type="number" name="due_day" value="{{ s.due_day or '' }}" min="1" max="28"
                   style="width:52px; background:var(--bg); color:var(--text); border:1px solid var(--border-2); padding:4px 6px; text-align:center;"
                   placeholder="venc">
                 <button type="submit" class="btn secondary" style="padding:4px 10px; font-size:9px;">salvar</button>
@@ -47,8 +50,7 @@
               <span style="color:var(--muted); font-size:11px;">—</span>
             {% endif %}
           </td>
-          <td></td>
-          <td>
+          <td style="display:flex; gap:6px; align-items:center;">
             {% if not s.archived %}
               <form method="post" action="/config/fontes/{{ s.id }}/archive" style="display:inline;">
                 <button type="submit" class="btn secondary" style="padding:3px 8px; font-size:9px; color:var(--warn);">arquivar</button>
@@ -58,53 +60,16 @@
                 <button type="submit" class="btn secondary" style="padding:3px 8px; font-size:9px;">reativar</button>
               </form>
             {% endif %}
+            <form method="post" action="/config/fontes/{{ s.id }}/delete" style="display:inline;"
+                  onsubmit="return confirm('Apagar {{ s.name }}? Só funciona se não houver lançamentos.')">
+              <button type="submit" class="btn danger" style="padding:3px 8px; font-size:9px;">apagar</button>
+            </form>
           </td>
         </tr>
       {% else %}
-        <tr><td colspan="6" style="color:var(--muted); text-align:center; padding:24px;">Nenhuma fonte cadastrada.</td></tr>
+        <tr><td colspan="4" style="color:var(--muted); text-align:center; padding:24px;">Nenhuma fonte cadastrada.</td></tr>
       {% endfor %}
     </tbody>
   </table>
-
-  <h3 style="color: var(--muted); letter-spacing: 0.22em; text-transform: uppercase; font-size: 11px; margin: 24px 0 10px;">▸ Nova fonte</h3>
-  <form method="post" action="/config/fontes/novo" class="form-card" style="max-width:640px;">
-    <div class="form-row">
-      <label>Slug (único, sem espaços)
-        <input type="text" name="slug" required maxlength="32" pattern="[a-z0-9-]+">
-      </label>
-      <label style="flex:1;">Nome
-        <input type="text" name="name" required maxlength="80">
-      </label>
-      <label>Tipo
-        <select name="kind" style="background:var(--bg); color:var(--text); border:1px solid var(--border-2); padding:6px 8px; font-family:var(--font); font-size:12px;">
-          <option value="hybrid">híbrido (crédito + débito)</option>
-          <option value="debit">débito (débito/PIX)</option>
-        </select>
-      </label>
-    </div>
-    <div class="form-row" id="billing-fields">
-      <label>Fechamento (dia)
-        <input type="number" name="closing_day" min="1" max="31" placeholder="ex: 10">
-      </label>
-      <label>Vencimento (dia)
-        <input type="number" name="due_day" min="1" max="31" placeholder="ex: 17">
-      </label>
-    </div>
-    <div class="form-actions">
-      <button type="submit" class="btn">[ criar ]</button>
-    </div>
-  </form>
 </div>
-
-{% block scripts %}
-<script>
-  const kindSel = document.querySelector('select[name="kind"]');
-  const billingFields = document.getElementById('billing-fields');
-  function toggleBilling() {
-    billingFields.style.display = kindSel.value === 'hybrid' ? '' : 'none';
-  }
-  kindSel.addEventListener('change', toggleBilling);
-  toggleBilling();
-</script>
-{% endblock %}
 {% endblock %}

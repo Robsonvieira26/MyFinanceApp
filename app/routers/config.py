@@ -98,17 +98,27 @@ def sources_view(request: Request, db: Session = Depends(get_db)) -> HTMLRespons
     )
 
 
+@router.get("/fontes/novo", response_class=HTMLResponse)
+def new_source_view(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse(
+        request, "config/sources_form.html",
+        {"active_nav": "sources", "page_title": "Nova fonte"},
+    )
+
+
 @router.post("/fontes/novo")
 def create_source(
     db: Session = Depends(get_db),
-    slug: str = Form(...),
     name: str = Form(...),
     kind: str = Form(...),
     closing_day: str = Form(""),
     due_day: str = Form(""),
 ):
-    if db.query(Source).filter_by(slug=slug).first():
-        raise HTTPException(status_code=400, detail="Slug já existe")
+    base = _slugify(name)
+    slug, n = base, 1
+    while db.query(Source).filter_by(slug=slug).first():
+        slug = f"{base}-{n}"
+        n += 1
     cd = int(closing_day) if closing_day.strip() else None
     dd = int(due_day) if due_day.strip() else None
     src_svc.create(db, slug=slug, name=name, kind=kind, closing_day=cd, due_day=dd)
@@ -137,6 +147,20 @@ def archive_source(source_id: int, db: Session = Depends(get_db)):
 @router.post("/fontes/{source_id}/unarchive")
 def unarchive_source(source_id: int, db: Session = Depends(get_db)):
     src_svc.unarchive(db, source_id)
+    return RedirectResponse("/config/fontes", status_code=303)
+
+
+@router.post("/fontes/{source_id}/delete")
+def delete_source(source_id: int, db: Session = Depends(get_db)):
+    from app.models import Transaction
+    has_tx = db.query(Transaction).filter_by(source_id=source_id).first()
+    if has_tx:
+        raise HTTPException(status_code=400, detail="Fonte possui lançamentos e não pode ser apagada. Arquive-a.")
+    src = db.get(Source, source_id)
+    if src is None:
+        raise HTTPException(status_code=404, detail="Fonte não encontrada")
+    db.delete(src)
+    db.commit()
     return RedirectResponse("/config/fontes", status_code=303)
 
 

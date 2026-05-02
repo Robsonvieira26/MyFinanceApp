@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+  <div><h1>Nova fonte<span class="blink">▊</span></h1></div>
+</div>
+<div class="content">
+  <div id="modal-frag">
+    <form method="post" action="/config/fontes/novo" class="form-card">
+      <div class="form-row">
+        <label style="flex:1;">Nome
+          <input type="text" name="name" required maxlength="80" autofocus>
+        </label>
+        <label>Tipo
+          <select name="kind" id="kind-sel" style="background:var(--bg); color:var(--text); border:1px solid var(--border-2); padding:6px 8px; font-family:var(--font); font-size:12px;">
+            <option value="hybrid">híbrido (crédito + débito)</option>
+            <option value="debit">débito (débito/PIX)</option>
+          </select>
+        </label>
+      </div>
+      <div class="form-row" id="billing-fields">
+        <label>Fechamento (dia)
+          <input type="number" name="closing_day" min="1" max="28" placeholder="ex: 3">
+        </label>
+        <label>Vencimento (dia)
+          <input type="number" name="due_day" min="1" max="28" placeholder="ex: 10">
+        </label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn">[ criar ]</button>
+      </div>
+    </form>
+    <script>
+    (function() {
+      const sel = document.getElementById('kind-sel');
+      const bf  = document.getElementById('billing-fields');
+      function toggle() { bf.style.display = sel.value === 'hybrid' ? '' : 'none'; }
+      sel.addEventListener('change', toggle);
+      toggle();
+    })();
+    </script>
+  </div>
+</div>
+{% endblock %}
